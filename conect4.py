@@ -98,56 +98,106 @@ def jugador_manual_conecta4(juego, s, j):
         jugada = int(input("Jugada: "))
     return jugada
 
+# def ordena_centro(jugadas, jugador):
+#     """
+#     Ordena las jugadas de acuerdo a la distancia al centro
+#     """
+#     return sorted(jugadas, key=lambda x: abs(x - 4))
 def ordena_centro(jugadas, jugador):
     """
-    Ordena las jugadas de acuerdo a la distancia al centro
+    Ordena las jugadas de acuerdo a la distancia al centro.
+    En Conecta 4, el centro es la columna 3 (si los índices del tablero van de 0 a 6).
     """
-    return sorted(jugadas, key=lambda x: abs(x - 4))
+    col_central = 3
+    return sorted(jugadas, key=lambda x: (abs(x - col_central), x))
 
+# def evalua_3con(s):
+#     """
+#     Evalua el estado s para el jugador 1
+#     """
+#     conect3 = sum(
+#         1 for i in range(7) for j in range(4) 
+#         if (s[i + 7 * j] == s[i + 7 * (j + 1)] 
+#             == s[i + 7 * (j + 2)] == 1)
+#     ) - sum(
+#         1 for i in range(7) for j in range(4) 
+#         if (s[i + 7 * j] == s[i + 7 * (j + 1)] 
+#             == s[i + 7 * (j + 2)] == -1)
+#     ) + sum(
+#         1 for i in range(6) for j in range(5) 
+#         if (s[7 * i + j] == s[7 * i + j + 1] 
+#             == s[7 * i + j + 2] == 1)
+#     ) - sum(
+#         1 for i in range(6) for j in range(5) 
+#         if (s[7 * i + j] == s[7 * i + j + 1] 
+#             == s[7 * i + j + 2] == -1)
+#     ) + sum(
+#         1 for i in range(5) for j in range(4) 
+#         if (s[i + 7 * j] == s[i + 7 * j + 8] 
+#             == s[i + 7 * j + 16] == 1)
+#     ) - sum(
+#         1 for i in range(5) for j in range(4) 
+#         if (s[i + 7 * j] == s[i + 7 * j + 8] 
+#             == s[i + 7 * j + 16] == -1)
+#     ) + sum(
+#         1 for i in range(5) for j in range(4) 
+#         if (s[i + 7 * j + 3] == s[i + 7 * j + 9] 
+#             == s[i + 7 * j + 15] == 1)
+#     ) - sum(
+#         1 for i in range(5) for j in range(4) 
+#         if (s[i + 7 * j + 3] == s[i + 7 * j + 9] 
+#             == s[i + 7 * j + 15] == -1)
+#     )
+#     promedio = conect3 / (7 * 4 + 6 * 5 + 5 * 4 + 5 * 4)
+#     if abs(promedio) >= 1:
+#         print("ERROR, evaluación fuera de rango --> ", promedio)
+#     return promedio
+def cont_3enlinea(s, jugador):
+    """
+    Cuenta las combinaciones de tres en línea para un jugador dado
+    """
+    contador = 0
+
+    # checamos combinaciones horizontales
+    for i in range(6):
+        for j in range(5):  # 5 posibles combinaciones por fila
+            if s[7 * i + j] == s[7 * i + j + 1] == s[7 * i + j + 2] == jugador:
+                contador += 1
+    # checamos combinaciones verticales
+    for i in range(7):
+        for j in range(4):
+            if s[i + 7 + j] == s [i + 7 * (j + 1)] == s[i + 7 * (j + 2)] == jugador:
+                contador += 1
+    # checamos combinaciones diagonales de ida
+    for i in range(5):
+        for j in range(5):
+            if s[7 * i + j] == s[7 * (i + 1) + (j + 1)] == s[7 * (i + 2) + (j + 2)] == jugador:
+                contador += 1
+    # checamos combinaciones diagonales de vuelta
+    for i in range(2, 7):
+        for j in range(5):  
+            if s[7 * i + j] == s[7 * (i - 1) + (j + 1)] == s[7 * (i - 2) + (j + 2)] == jugador:
+                contador += 1
+    return contador
 def evalua_3con(s):
     """
     Evalua el estado s para el jugador 1
     """
-    conect3 = sum(
-        1 for i in range(7) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * (j + 1)] 
-            == s[i + 7 * (j + 2)] == 1)
-    ) - sum(
-        1 for i in range(7) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * (j + 1)] 
-            == s[i + 7 * (j + 2)] == -1)
-    ) + sum(
-        1 for i in range(6) for j in range(5) 
-        if (s[7 * i + j] == s[7 * i + j + 1] 
-            == s[7 * i + j + 2] == 1)
-    ) - sum(
-        1 for i in range(6) for j in range(5) 
-        if (s[7 * i + j] == s[7 * i + j + 1] 
-            == s[7 * i + j + 2] == -1)
-    ) + sum(
-        1 for i in range(5) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * j + 8] 
-            == s[i + 7 * j + 16] == 1)
-    ) - sum(
-        1 for i in range(5) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * j + 8] 
-            == s[i + 7 * j + 16] == -1)
-    ) + sum(
-        1 for i in range(5) for j in range(4) 
-        if (s[i + 7 * j + 3] == s[i + 7 * j + 9] 
-            == s[i + 7 * j + 15] == 1)
-    ) - sum(
-        1 for i in range(5) for j in range(4) 
-        if (s[i + 7 * j + 3] == s[i + 7 * j + 9] 
-            == s[i + 7 * j + 15] == -1)
-    )
-    promedio = conect3 / (7 * 4 + 6 * 5 + 5 * 4 + 5 * 4)
+    conect3_jugador1 = cont_3enlinea(s, 1)
+    conect3_jugador2 = cont_3enlinea(s, -1)
+
+    conect3 = conect3_jugador1 - conect3_jugador2
+    total_combinaciones = (7 * 4) + (6 * 5) + (5 * 4) + (5 * 4)  # Total de combinaciones posibles
+
+    promedio = conect3 / total_combinaciones
+
     if abs(promedio) >= 1:
-        print("ERROR, evaluación fuera de rango --> ", promedio)
+        print("ERROR: evaluación fuera de rango - ", promedio)
+
     return promedio
-
-
     
+
+ 
 if __name__ == '__main__':
 
     modelo = Conecta4()
