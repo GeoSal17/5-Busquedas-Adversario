@@ -158,22 +158,22 @@ def cont_3enlinea(s, jugador):
     """
     contador = 0
 
-    # checamos combinaciones horizontales
+    #horizontales
     for i in range(6):
         for j in range(5):  # 5 posibles combinaciones por fila
             if s[7 * i + j] == s[7 * i + j + 1] == s[7 * i + j + 2] == jugador:
                 contador += 1
-    # checamos combinaciones verticales
+    #verticales
     for i in range(7):
         for j in range(4):
             if s[i + 7 + j] == s [i + 7 * (j + 1)] == s[i + 7 * (j + 2)] == jugador:
                 contador += 1
-    # checamos combinaciones diagonales de ida
+    #diagonales de ida
     for i in range(5):
         for j in range(5):
             if s[7 * i + j] == s[7 * (i + 1) + (j + 1)] == s[7 * (i + 2) + (j + 2)] == jugador:
                 contador += 1
-    # checamos combinaciones diagonales de vuelta
+    #diagonales de vuelta
     for i in range(2, 7):
         for j in range(5):  
             if s[7 * i + j] == s[7 * (i - 1) + (j + 1)] == s[7 * (i - 2) + (j + 2)] == jugador:
