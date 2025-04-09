@@ -4,7 +4,7 @@ from juegos_simplificado import juega_dos_jugadores
 from minimax import jugador_negamax
 #from minimax import minimax_iterativo
 
-class UltTicTacToe(ModeloJuegoZT2):
+class UltimateTicTacToe(ModeloJuegoZT2):
     def inicializa(self):
         self.tablero = np.zeros((3, 3, 3, 3), dtype=int) 
         self.jugador = 1
@@ -21,10 +21,10 @@ class UltTicTacToe(ModeloJuegoZT2):
                                 jugadas_legales.append((i,j,x,y))
         return jugadas_legales
     
-    def transicion(self, s, a, j):
+    def transicion(self, s, a, jug):
         nuevo_tablero = s.copy()
         i, j, x, y = a
-        nuevo_tablero[i][j][x][y] = j
+        nuevo_tablero[i][j][x][y] = jug
         return nuevo_tablero
     
     def terminal(self, s):
@@ -63,5 +63,6 @@ class UltTicTacToe(ModeloJuegoZT2):
                 print()
     
     #definir funcion pa jugar
-                
-    
+
+if __name__ == '__main__':
+    juega_ultimate_tic_tac_toe()

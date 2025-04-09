@@ -1,0 +1,174 @@
+from juegos_simplificado import ModeloJuegoZT2
+from juegos_simplificado import juega_dos_jugadores
+from minimax import jugador_negamax
+from minimax import minimax_iterativo
+
+class UltimateTicTacToe(ModeloJuegoZT2):
+    def __init__(self):
+        #self.tablero = np.zeros((3, 3, 3, 3), dtype=int) 
+        self.tablero = [[[[0 for _ in range(3)] for _ in range(3)] for _ in range(3)] for _ in range(3)]
+        self.jugador = 1
+        #return (self.tablero, self.jugador)
+
+    def inicializa(self):
+        # self.tablero = np.zeros((3, 3, 3, 3), dtype=int) 
+        self.tablero = [[[[0 for _ in range(3)] for _ in range(3)] for _ in range(3)] for _ in range(3)]
+        self.jugador = 1
+        return (self.tablero, self.jugador)
+        #return self.tablero.copy(), self.jugador
+    
+    def jugadas_legales(self, s, j):
+        jugadas_legales = []
+        for i in range(3):
+            for j in range(3):
+                if any(0 in row for row in s[i][j]): #si hay un tablero vacio
+                    for x in range(3):
+                        for y in range(3):
+                            if s[i][j][x][y] == 0: #si hay una celda vacia en el tablero
+                                jugadas_legales.append((i,j,x,y))
+        return jugadas_legales
+    
+    def transicion(self, s, a, jug):
+        nuevo_tablero = s.copy()
+        i, j, x, y = a
+        nuevo_tablero[i][j][x][y] = jug
+        return nuevo_tablero
+    
+    def terminal(self, s):
+        return self.es_ganador(1) or self.es_ganador(2) or np.all(s != 0)
+    
+    def ganancia(self, s):
+        if self.es_ganador(1):
+            return 1
+        elif self.es_ganador(2):
+            return -1
+        else:
+            return 0
+        
+    #cuenta como evalua??
+    def es_ganador(self, jugador):
+        for i in range(3):
+            for j in range(3):
+                if np.all(self.tablero[i][j] == jugador):
+                    return True
+        for i in range(3):
+            if np.all(self.tablero[i, :, :, :] == jugador) or np.all(self.tablero[:, i, :, :] == jugador):
+                return True
+            
+        if np.all(np.diagonal(self.tablero, axis1=0, axis2=1) == jugador) or np.all(np.diagonal(np.fliplr(self.tablero), axis1=0, axis2=1) == jugador):
+            return True
+        return False
+
+def pprint(tablero):
+    def valor_celda(val, k):
+        if val == 0:
+            return str(k)
+        elif val == 1:
+            return 'X'
+        elif val == 2:
+            return 'O'
+
+    #matriz de strings 9x9
+    tablero_completo = [['' for _ in range(9)] for _ in range(9)]
+    
+    for region in range(9):
+        ri, rj = divmod(region, 3)
+        for cell in range(9):
+            ci, cj = divmod(cell, 3)
+            i = ri * 3 + ci
+            j = rj * 3 + cj
+            val = tablero[ri][rj][ci][cj]
+            tablero_completo[i][j] = valor_celda(val, cell)
+    
+    #separación visual entre regiones
+    for i in range(9):
+        row = ''
+        for j in range(9):
+            row += tablero_completo[i][j] + ' '
+            if (j + 1) % 3 == 0 and j < 8:
+                row += '| '
+        print(row)
+        if (i + 1) % 3 == 0 and i < 8:
+            print('-' * 21)
+        
+def juega_ultimate_tic_tac_toe():
+    juego = UltimateTicTacToe()
+    print("Bienvenido al Ultimate Tic Tac Toe!")
+
+    region_actual = None #para verificar en que region se va a jugar
+    #while True:
+    estado, jugador = juego.inicializa()
+
+    while not juego.terminal(estado):
+        pprint(estado)
+        #if jugador == 1:
+        #print("Turno del Jugador 1 (X)")
+        print(f"\nTurno del Jugador {jugador} ({'X' if jugador == 1 else 'O'})")
+        #move = None 
+        jugadas = juego.jugadas_legales(estado, jugador)
+        
+        if region_actual is not None: #si no hay region actual
+            region_i, region_j = divmod(region_actual, 3)
+            region_disponible = any( #saca las regiones disponibles
+                move for move in jugadas if move[0] == region_i and move[1] == region_j
+            )
+        else: #si hay region actual, restringe la disponibilidad de regiones
+            region_disponible = False
+
+        if region_actual is None or not region_disponible: #si no hay region actual o no está disponible la región
+            print("Puedes elegir la región!")
+            #while move not in juego.jugadas_legales(estado, jugador):
+            while True:
+                try:
+                    entrada = input("Ingrese su jugada como 'region celda' (0-8 0-8): ")
+                    region, cell = map(int, entrada.strip().split())
+                    i, j = divmod(region, 3)
+                    x, y = divmod(cell, 3)
+                    move = (i, j, x, y)
+                    if move in jugadas:
+                        break
+                    else:
+                        print("Jugada no válida. Intente de nuevo.")
+                except:
+                    print("Formato inválido. Debe ser dos números entre 0 y 8.")
+
+        else: # si hay region actual y disponibilidad
+            print("Se jugará en la región {region_actual}.")
+            while True:
+                try: 
+                    entrada = input("Ingresa tu jugada como 'celda' (0-8): ")
+                    cell = int(entrada.strip())
+                    x, y = divmod(cell, 3)
+                    i, j = divmod(region_actual, 3)
+                    move = (i, j, x, y)
+                    if move in jugadas:
+                        break
+                    else:
+                        print("Esa celda no está disponible.")
+                except:
+                    print("Formato inválido. Intenta de nuevo.")
+
+        move = jugador_negamax(juego, estado, jugador) 
+        
+        estado = juego.transicion(estado, move, jugador)
+        print(f"Jugador {jugador} jugó en región {move[0]*3 + move[1]}, celda {move[2]*3 + move[3]}")
+        pprint(estado)
+
+        jugador = 2 if jugador == 1 else 1
+        pprint(estado)
+
+        _, _, x, y = move
+        region_actual = x * 3 + y
+    
+    print("\n¡Fin del juego!")
+    pprint(estado)
+
+    if juego.ganancia(estado) == 1:
+        print("¡Jugador 1 gana!")
+    elif juego.ganancia(estado) == -1:
+        print("¡Jugador 2 gana!")
+    else:
+        print("¡Empate!")
+
+if __name__ == '__main__':
+    juega_ultimate_tic_tac_toe()
