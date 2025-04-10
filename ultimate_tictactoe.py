@@ -63,6 +63,8 @@ class UltimateTicTacToe(ModeloJuegoZT2):
                 print()
     
     #definir funcion pa jugar
+def juega_ultimate_tic_tac_toe():
+    print("vamo a jugar")
 
 if __name__ == '__main__':
     juega_ultimate_tic_tac_toe()

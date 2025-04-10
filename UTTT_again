@@ -1,11 +1,11 @@
 from juegos_simplificado import ModeloJuegoZT2
 from juegos_simplificado import juega_dos_jugadores
+from juegos_simplificado import minimax
 from minimax import jugador_negamax
-from minimax import minimax_iterativo
 
 """
 [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0]  # R0
+    [0, 1, 2, 3, 4, 5, 6, 7, 8]  # R0
     [0, 0, 0, 0, 0, 0, 0, 0, 0], # R1
     [0, 0, 0, 0, 0, 0, 0, 0, 0], # R2
     [0, 0, 0, 0, 0, 0, 0, 0, 0], # R3
@@ -15,6 +15,18 @@ from minimax import minimax_iterativo
     [0, 0, 0, 0, 0, 0, 0, 0, 0], # R7
     [0, 0, 0, 0, 0, 0, 0, 0, 0], # R8
 ]
+
+0 1 2 | 0 1 2 | 0 1 2 
+3 4 5 | 3 4 5 | 3 4 5 
+6 7 8 | 6 7 8 | 6 7 8 
+---------------------
+0 1 2 | 0 1 2 | 0 1 2
+3 4 5 | 3 4 5 | 3 4 5
+6 7 8 | 6 7 8 | 6 7 8
+---------------------
+0 1 2 | 0 1 2 | 0 1 2
+3 4 5 | 3 4 5 | 3 4 5
+6 7 8 | 6 7 8 | 6 7 8
 """
 
 class UltimateTicTacToe(ModeloJuegoZT2):
@@ -46,19 +58,45 @@ class UltimateTicTacToe(ModeloJuegoZT2):
         tablero, _, _ = s
         region, celda = a
 
+        jug_interno = 1 if j == 1 else 2
+
         tablero[region][celda] = j
 
-        if self.evalua_ganador_region(tablero[region], j):
+        if self.evalua_ganador(tablero[region], j):
             self.region_ganada[region] = j
         elif all(c != 0 for c in tablero[region]):
             self.region_ganada[region] = 3 #empate
 
-        if self.region_ganada[celda] == 0:
+        if self.region_ganada[celda] == 0: #si la proxima región no ha terminado
             proxima_region = celda
         else:
-    
+            proxima_region = None
 
-    def evalua_ganador_region(self, region, jugador):
+        #proximo_jugador = 2 if j == 1 else 1
+
+        return (tablero, proximo_jugador, proxima_region)
+    
+    def terminal(self, s):
+        tablero, jugador, proxima_region = s
+        ganador = self.evalua_ganador(self.region_ganada)
+
+        if ganador != 0:
+            return True  #alguien ya ganó
+        if all(r != 0 for r in self.region_ganada):
+            return True  #empate
+        return False
+    
+    def ganancia(self, s):
+        regiones = self.regiones_ganadas
+        ganador = self.evalua_ganador(regiones)
+        if ganador == 1:
+            return 1
+        elif ganador == 2:
+            return -1
+        else:
+            return 0
+    
+    def evalua_ganador(self, region, jugador):
         lineas = [
             [0,1,2], [3,4,5], [6,7,8],  #filas
             [0,3,6], [1,4,7], [2,5,8],  #columnas
@@ -69,3 +107,79 @@ class UltimateTicTacToe(ModeloJuegoZT2):
                 return True
         return False
     
+def pprint(tablero):
+    def celda_a_str(valor,idx):
+        if valor == 1:
+            return 'X'
+        elif valor == 2:
+            return 'O'
+        else:
+            return str(idx)
+    
+    filas = []
+    for fila_grande in range(3):  #regiones horizontales
+        for fila_pequena in range(3):  #filas x bloque
+            fila = []
+            for col_grande in range(3):  #regiones verticales
+                region = 3 * fila_grande + col_grande
+                for col_pequena in range(3):  #3 celdas x region
+                    celda = 3 * fila_pequena + col_pequena
+                    idx = celda
+                    valor = tablero[region][celda]
+                    fila.append(celda_a_str(valor, idx))
+                if col_grande < 2:
+                    fila.append('|')
+            filas.append(' '.join(fila))
+        if fila_grande < 2:
+            filas.append('-' * 23)
+    
+    print('\n'.join(filas))
+
+def jugador_manual(juego, s, j):
+    """
+    Jugador manual para el juego del gato
+
+    """
+    print("Estado actual:")
+    pprint(s)
+    print("Jugador:", 'X' if j == 1 else 'O')
+
+    jugadas = juego.jugadas_legales(s, j)
+    print("Jugadas legales:", jugadas)
+
+    jugada = None
+    while jugada not in jugadas:
+        try:
+            entrada = input("Ingresa tu jugada como 'region celda': ")
+            r, c = map(int, entrada.strip().split())
+            jugada = (r, c)
+        except ValueError:
+            print("Formato no válido, tan claro que está!!")
+        if jugada not in jugadas:
+            print("Jugada ilegal. Inténtalo de nuevo.")
+    return jugada
+
+def jugador_minimax(juego, s, j):
+    """
+    Jugador minimax para el juego del gato
+
+    """
+    return minimax(juego, s, j)
+
+def juega_UTTT(jugador='X'):
+    if jugador not in ['X', 'O']:
+        raise ValueError("El jugador solo puede tener los valores 'X' o 'O'")
+    
+    juego = UltimateTicTacToe()
+    print("El juego del gato")
+    print(f"Las 'X' siempre empiezan y tu juegas con {jugador}")
+    
+    if jugador == 'X':
+        #g, s = juega_dos_jugadores(juego, jugador_manual_gato, jugador_minimax_gato)
+        g, s = juega_dos_jugadores(juego, jugador_manual, jugador_negamax)
+    else:
+        #g, s = juega_dos_jugadores(juego, jugador_minimax_gato, jugador_manual_gato)
+        g, s = juega_dos_jugadores(juego, jugador_negamax, jugador_manual)
+
+if __name__ == '__main__':
+    juega_UTTT('X')
