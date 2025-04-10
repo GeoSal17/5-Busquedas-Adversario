@@ -1,0 +1,71 @@
+from juegos_simplificado import ModeloJuegoZT2
+from juegos_simplificado import juega_dos_jugadores
+from minimax import jugador_negamax
+from minimax import minimax_iterativo
+
+"""
+[
+    [0, 0, 0, 0, 0, 0, 0, 0, 0]  # R0
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R1
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R2
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R3
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R4
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R5
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R6
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R7
+    [0, 0, 0, 0, 0, 0, 0, 0, 0], # R8
+]
+"""
+
+class UltimateTicTacToe(ModeloJuegoZT2):
+    def inicializa(self):
+        region = [0] * 9
+        self.tablero = [[0] * 9 for _ in range(9)]
+        self.region_ganada = [0] * 9 #0=no ganada, 1=gano jugador 1, 2=gano jugador 2, 3=empate
+        self.jugador = 1
+        self.prox_region = None #en que región se va a jugar, si es None entonces puede ser cualquiera
+        return (self.tablero, self.jugador, self.prox_region)
+    
+    def jugadas_legales(self, s, j):
+        tablero, _, prox_region = s
+        jugadas_legales = []
+
+        regiones_disponibles = [] #regiones no ganadas
+        if prox_region is not None and self.region_ganada[prox_region] == 0: #si hay proxima región y no ha termiando
+            regiones_disponibles = [prox_region] #esa es la única en la que se puede jugar
+        else:
+            regiones_disponibles = [r for r in range(9) if self.region_ganada[r] == 0] #se puede jugar en cualquier región no ganada
+
+        for region in regiones_disponibles:
+            for celda in range(9):
+                if tablero[region][celda] == 0:
+                    jugadas_legales.append((region, celda))
+        return jugadas_legales
+    
+    def transicion(self, s, a, j):
+        tablero, _, _ = s
+        region, celda = a
+
+        tablero[region][celda] = j
+
+        if self.evalua_ganador_region(tablero[region], j):
+            self.region_ganada[region] = j
+        elif all(c != 0 for c in tablero[region]):
+            self.region_ganada[region] = 3 #empate
+
+        if self.region_ganada[celda] == 0:
+            proxima_region = celda
+        else:
+    
+
+    def evalua_ganador_region(self, region, jugador):
+        lineas = [
+            [0,1,2], [3,4,5], [6,7,8],  #filas
+            [0,3,6], [1,4,7], [2,5,8],  #columnas
+            [0,4,8], [2,4,6]            #diagonales
+        ]
+        for linea in lineas:
+            if all(region[i] == jugador for i in linea):
+                return True
+        return False
+    
