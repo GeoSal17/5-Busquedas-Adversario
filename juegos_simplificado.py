@@ -67,8 +67,8 @@ def juega_dos_jugadores(juego, jugador1, jugador2):
     s, j = juego.inicializa()
     while not juego.terminal(s):
         a = jugador1(juego, s, j) if j == 1 else jugador2(juego, s, j)
-        s = juego.transicion(s, a, j)
-        j = -j
+        s, j = juego.transicion(s, a, j)
+        #j = -j
     return juego.ganancia(s), s
 
 
@@ -83,13 +83,15 @@ def minimax(juego, estado, jugador):
             return j * juego.ganancia(estado)
         v = -1e10
         for a in juego.jugadas_legales(estado, jugador):
-            v = max(
-                v, 
-                min_val(
-                    juego.transicion(estado, a, jugador), 
-                    -jugador
-                )
-            )
+            #v = max(
+                # v, 
+                # min_val(
+                #     juego.transicion(estado, a, jugador), 
+                #     -jugador
+                # )
+            nuevo_estado, _ = juego.transicion(estado,a,jugador)
+            v = max(v, min_val(nuevo_estado, -jugador))
+            #)
         return v
     
     def min_val(estado, jugador):
@@ -97,13 +99,15 @@ def minimax(juego, estado, jugador):
             return j * juego.ganancia(estado)
         v = 1e10
         for a in juego.jugadas_legales(estado, jugador):
-            v = min(
-                v, 
-                max_val(
-                    juego.transicion(estado, a, jugador), 
-                    -jugador
-                )
-            )
+            # v = min(
+            #     v, 
+            #     max_val(
+            #         juego.transicion(estado, a, jugador), 
+            #         -jugador
+            #     )
+            # )
+            nuevo_estado, _ = juego.transicion(estado,a,jugador)
+            v = min(v, max_val(nuevo_estado, -jugador))
         return v
     
     return max(

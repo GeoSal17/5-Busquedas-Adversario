@@ -31,15 +31,14 @@ from minimax import jugador_negamax
 
 class UltimateTicTacToe(ModeloJuegoZT2):
     def inicializa(self):
-        region = [0] * 9
+        #region = [0] * 9
         self.tablero = [[0] * 9 for _ in range(9)]
         self.region_ganada = [0] * 9 #0=no ganada, 1=gano jugador 1, 2=gano jugador 2, 3=empate
-        self.jugador = 1
         self.prox_region = None #en que región se va a jugar, si es None entonces puede ser cualquiera
-        return (self.tablero, self.jugador, self.prox_region)
+        return (self.tablero, self.prox_region)
     
     def jugadas_legales(self, s, j):
-        tablero, _, prox_region = s
+        tablero, prox_region = s
         jugadas_legales = []
 
         regiones_disponibles = [] #regiones no ganadas
@@ -55,15 +54,16 @@ class UltimateTicTacToe(ModeloJuegoZT2):
         return jugadas_legales
     
     def transicion(self, s, a, j):
-        tablero, _, _ = s
+        tablero, proxima_region = s
         region, celda = a
 
         jug_interno = 1 if j == 1 else 2
 
-        tablero[region][celda] = j
+        nuevo_tablero = [r.copy() for r in tablero]
+        nuevo_tablero[region][celda] = j
 
-        if self.evalua_ganador(tablero[region], j):
-            self.region_ganada[region] = j
+        if self.gana_region(tablero[region], jug_interno):
+            self.region_ganada[region] = jug_interno
         elif all(c != 0 for c in tablero[region]):
             self.region_ganada[region] = 3 #empate
 
@@ -72,12 +72,12 @@ class UltimateTicTacToe(ModeloJuegoZT2):
         else:
             proxima_region = None
 
-        #proximo_jugador = 2 if j == 1 else 1
-
-        return (tablero, proximo_jugador, proxima_region)
+        #proximo_jugador = -j
+        return (nuevo_tablero, proxima_region), -j
+        #return (nuevo_tablero, proxima_region)
     
     def terminal(self, s):
-        tablero, jugador, proxima_region = s
+        #tablero, proxima_region = s
         ganador = self.evalua_ganador(self.region_ganada)
 
         if ganador != 0:
@@ -96,16 +96,29 @@ class UltimateTicTacToe(ModeloJuegoZT2):
         else:
             return 0
     
-    def evalua_ganador(self, region, jugador):
+    def gana_region(self, region, j):
         lineas = [
             [0,1,2], [3,4,5], [6,7,8],  #filas
             [0,3,6], [1,4,7], [2,5,8],  #columnas
             [0,4,8], [2,4,6]            #diagonales
         ]
         for linea in lineas:
-            if all(region[i] == jugador for i in linea):
+            if all(region[i] == j for i in linea):
                 return True
         return False
+    
+    def evalua_ganador(self, regiones):
+        # lineas = [
+        #     [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        #     [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        #     [0, 4, 8], [2, 4, 6]
+        # ]
+        # for l in lineas:
+        #     if regiones[l[0]] != 0 and regiones[l[0]] != 3:
+        #         if regiones[l[0]] == regiones[l[1]] == regiones[l[2]]:
+        #             return regiones[l[0]]
+        # return 0
+        return self.gana_region(regiones, 1) and 1 or self.gana_region(regiones,2) and 2 or 0
     
 def pprint(tablero):
     def celda_a_str(valor,idx):
@@ -175,11 +188,11 @@ def juega_UTTT(jugador='X'):
     print(f"Las 'X' siempre empiezan y tu juegas con {jugador}")
     
     if jugador == 'X':
-        #g, s = juega_dos_jugadores(juego, jugador_manual_gato, jugador_minimax_gato)
-        g, s = juega_dos_jugadores(juego, jugador_manual, jugador_negamax)
-    else:
-        #g, s = juega_dos_jugadores(juego, jugador_minimax_gato, jugador_manual_gato)
-        g, s = juega_dos_jugadores(juego, jugador_negamax, jugador_manual)
+        g, s = juega_dos_jugadores(juego, jugador_manual, jugador_minimax)
+        #g, s = juega_dos_jugadores(juego, jugador_manual, jugador_negamax)
+    #else:
+        #g, s = juega_dos_jugadores(juego, jugador_minimax, jugador_manual)
+        #g, s = juega_dos_jugadores(juego, jugador_negamax, jugador_manual)
 
 if __name__ == '__main__':
     juega_UTTT('X')

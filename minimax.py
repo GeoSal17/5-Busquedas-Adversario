@@ -95,6 +95,9 @@ def jugador_negamax(
     Funcion burrito para el negamax
     
     """
+    if isinstance(estado, tuple) and len(estado) == 2:
+        estado = estado[0] #s=(tablero,prox_regi)
+
     traza, _ = negamax(
         juego=juego, estado=estado, jugador=jugador, 
         alpha=-1e10, beta=1e10, ordena=ordena, d=d, 
