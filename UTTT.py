@@ -145,31 +145,6 @@ def evaluar_ganador(region):
             region[10] = 3
             region[9] = 1
 
-"""
-def jugador_manual(juego, estado, ultima_celda):
-    jugada = None
-    jugador = 1
-    print("Estado actual:")
-    pprint(estado)
-    print("Jugador:", jugador)
-
-    legales = juego.jugadas_legales(estado, ultima_celda)
-    print(f"Jugadas legales: {legales}")
-    while True:
-        entrada = input("Ingresa tu jugada como 'region celda': ")
-        try:
-            r, c = map(int, entrada.strip().split())
-            if (r, c) in legales:
-                break
-            else:
-                print("Jugada inválida, intenta otra jugada.")
-        except:
-            print("Formato inválido. Usa: region celda (ej: 0 4)")
-
-    estado = juego.transicion(estado, jugador, (r, c))
-    ultima_celda = c
-    return (r, c)
-"""
 def jugador_manual(juego, estado, prox_reg):
     print("Estado actual:")
     pprint(estado)
@@ -192,42 +167,6 @@ def jugador_manual(juego, estado, prox_reg):
 def jugador_minimax(juego, s, j):
     return minimax(juego, s, j)
 
-"""
-def juegar_partida():
-    juego = UltimateTicTacToe()
-    estado, jugador = juego.inicializa()
-    prox_reg = None
-    
-    estado = juego.inicializa()
-    while True:
-        jugador = input("¿Quieres ser el jugador 1 o 2: ")
-        if jugador == 1 or 2:
-            break
-        else:
-            print("No es tan difícil decidir entre 1 y 2")
-    ultima_celda = None
-    
-    
-    print("ULTIMATE TIC-TAC-TOE")
-    print(f"Las 'X' siempre empiezan y tu juegas como {'X' if jugador == 1 else 'O'}")
-    
-    if jugador == 1:
-        g, s = juega_dos_jugadores(juego, jugador_manual, jugador_negamax)
-    else:
-        g, s = juega_dos_jugadores(juego, jugador_negamax, jugador_manual)
-    
-    print("\nSE ACABÓ EL JUEGO\n")
-    pprint(s)   
-
-    resultado = juego.ganancia(s, 1)
-    if resultado == 1:
-        print("¡Ganó el jugador 1!")
-    elif resultado == -1:
-        print("¡Ganó el jugador 2!")
-    else:
-        print("¡Empate!")
-"""
-
 def juegar_partida():
     juego = UltimateTicTacToe()
     estado, jugador = juego.inicializa()
@@ -240,6 +179,7 @@ def juegar_partida():
         if jugador == manual:  
             move = jugador_manual(juego, estado, prox_reg)
         else:
+            print("Es turno de la computadora...")
             move = jugador_negamax(juego, estado, prox_reg)
         estado, prox_reg = juego.transicion(estado, move, jugador)
         jugador = 2 if jugador == 1 else 1
@@ -259,43 +199,3 @@ if __name__ == '__main__':
         manual = int(input("¿Quieres ser el jugador 1(X) o 2(O)?  "))
         if manual in (1,2): break
     juegar_partida()
-
-
-"""
-def jugar_partida():
-    juego = UltimateTicTacToe()
-    estado = juego.inicializa()
-    jugador = 1
-    ultima_celda = None
-
-    while not juego.terminal(estado):
-        print(f"\nTurno del jugador {jugador}")
-        pprint(estado)
-
-        legales = juego.jugadas_legales(estado, ultima_celda)
-        print(f"Jugadas legales: {legales}")
-
-        while True:
-            entrada = input("Ingresa tu jugada como 'region celda': ")
-            try:
-                r, c = map(int, entrada.strip().split())
-                if (r, c) in legales:
-                    break
-                else:
-                    print("Jugada inválida, intenta otra jugada.")
-            except:
-                print("Formato inválido. Usa: region celda (ej: 0 4)")
-
-        estado = juego.transicion(estado, jugador, (r, c))
-        ultima_celda = c
-        jugador = 2 if jugador == 1 else 1
-
-    pprint(estado)
-    resultado = juego.ganancia(estado, 1)
-    if resultado == 1:
-        print("¡Ganó el jugador 1!")
-    elif resultado == -1:
-        print("¡Ganó el jugador 2!")
-    else:
-        print("¡Empate!")
-"""
