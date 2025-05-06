@@ -122,7 +122,8 @@ def juega_gato(jugador='X'):
     
     if jugador == 'X':
         #g, s = juega_dos_jugadores(juego, jugador_manual_gato, jugador_minimax_gato)
-        g, s = juega_dos_jugadores(juego, jugador_manual_gato, jugador_negamax)
+        #g, s = juega_dos_jugadores(juego, jugador_manual_gato, jugador_negamax)
+        g, s = juega_dos_jugadores(juego, jugador_negamax, jugador_negamax)
     else:
         #g, s = juega_dos_jugadores(juego, jugador_minimax_gato, jugador_manual_gato)
         g, s = juega_dos_jugadores(juego, jugador_negamax, jugador_manual_gato)

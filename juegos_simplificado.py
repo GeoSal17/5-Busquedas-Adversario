@@ -111,12 +111,12 @@ def minimax(juego, estado, jugador):
         return v
     
     return max(
-        juego.jugadas_legales(estado, jugador),
-        key=lambda a: min_val(
-            juego.transicion(estado, a, jugador), 
-            -jugador
+                juego.jugadas_legales(estado, jugador),
+                key=lambda a: min_val(
+                    juego.transicion(estado, a, jugador)[0], 
+                    -jugador
+                )
             )
-        )
     
 
 def alpha_beta(juego, estado, jugador, ordena=None):
